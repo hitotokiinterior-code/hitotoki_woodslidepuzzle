@@ -1,0 +1,19 @@
+{
+  "name": "wood-box-puzzle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "木箱すべりパズル — Capacitor wrapper for iOS (AdMob banner + interstitial)",
+  "scripts": {
+    "sync": "cap sync ios",
+    "open:ios": "cap open ios",
+    "add:ios": "cap add ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.0.0",
+    "@capacitor-community/admob": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/ios": "^8.0.0"
+  }
+}
