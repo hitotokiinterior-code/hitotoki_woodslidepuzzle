@@ -70,9 +70,13 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        # Name of the App Store Connect API key you add in Codemagic's UI
-        # under Teams > Integrations > App Store Connect (see README.md).
-        api_key: codemagic_api_key
+        # These three come from the .p8 key / Key ID / Issuer ID you got when
+        # generating the App Store Connect API key — stored as secret
+        # environment variables in the `app_store_credentials` group above
+        # (see README.md for exact variable names to create in Codemagic's UI).
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
         # Flip to true once you're ready to send builds straight to review.
         submit_to_app_store: false
