@@ -60,7 +60,10 @@ workflows:
             --create
           keychain initialize
           app-store-connect list-builds --app-id "$BUNDLE_ID" || true
-          xcode-project use-profiles
+          # Explicitly point at our .xcodeproj — without --project, this
+          # sometimes fails to locate/apply the profile when there's no
+          # .xcworkspace (SPM-only projects), leaving signing unconfigured.
+          xcode-project use-profiles --project "$XCODE_PROJECT"
       - name: Increment build number
         script: |
           cd $CM_BUILD_DIR/ios/App
