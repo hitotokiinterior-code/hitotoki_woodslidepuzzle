@@ -1,33 +1,42 @@
 /**
  * ads.js — AdMob helper for the wood-box-puzzle Capacitor app.
  *
- * Uses the Capacitor global bridge (window.Capacitor.Plugins.AdMob) instead
- * of ES module imports, so it works as a plain <script> tag with no bundler —
- * matching how the rest of this game is written.
+ * Capacitorのグローバルブリッジ (window.Capacitor.Plugins.AdMob) を使うので、
+ * バンドラ無しの <script> タグだけで動きます。
+ * ブラウザ(Capacitorなし)で開いた場合は、すべての関数が何もしません。
  *
- * On the web (no Capacitor runtime present, e.g. previewing in a browser),
- * every function becomes a harmless no-op, so you can keep testing the game
- * in a normal browser tab without errors.
- *
- * BEFORE SHIPPING: replace TEST_BANNER_ID / TEST_INTERSTITIAL_ID below with
- * your real AdMob ad unit IDs from https://apps.admob.com.
- * Keep using the test IDs during development — Google can suspend accounts
- * that serve real ads to a developer's own device during testing.
+ * 変更点:
+ *  - 初期化の完了を待ってからバナー/インタースティシャルを出す
+ *  - バナーの高さ分だけ画面下に余白を作る（ボタンと重ならない）
+ *  - 全画面広告は「ひとつ戻す」では出さない。クリア3回に1回、かつ前回から90秒以上
+ *  - バナーの二重表示を防止
  */
 (function () {
   "use strict";
 
-  // Google's official iOS test ad unit IDs — safe to leave in during development.
+  // Google公式のiOSテスト広告ID（開発中はこちらに切り替えると安全）
   var TEST_BANNER_ID = "ca-app-pub-3940256099942544/2934735716";
   var TEST_INTERSTITIAL_ID = "ca-app-pub-3940256099942544/4411468910";
 
-  // Real AdMob ad unit IDs (木箱すべりパズル).
+  // 本番の広告ユニットID（木箱すべりパズル）
   var BANNER_AD_ID = "ca-app-pub-4044413836429156/8030070153";
   var INTERSTITIAL_AD_ID = "ca-app-pub-4044413836429156/5615484797";
 
-  // Show an interstitial every N taps of "ひとつ戻す" (undo).
-  var INTERSTITIAL_EVERY_N_UNDOS = 5;
-  var UNDO_COUNT_KEY = "wood-puzzle-undo-count";
+  // 全画面広告の頻度
+  var INTERSTITIAL_EVERY_N_CLEARS = 3;   // クリア3回に1回
+  var INTERSTITIAL_MIN_INTERVAL_MS = 90 * 1000; // 前回表示から最低90秒
+  var CLEAR_COUNT_KEY = "wood-puzzle-clear-count";
+
+  // バナーの高さぶん、画面下に余白を作る
+  var style = document.createElement("style");
+  style.textContent =
+    "body{padding-bottom:calc(28px + var(--ad-h, 0px)) !important}" +
+    "#win{padding-bottom:calc(20px + var(--ad-h, 0px)) !important}";
+  document.head.appendChild(style);
+
+  function setAdHeight(px) {
+    document.documentElement.style.setProperty("--ad-h", (px || 0) + "px");
+  }
 
   function getAdMob() {
     return (
@@ -37,36 +46,58 @@
     );
   }
 
-  var initialized = false;
+  var readyPromise = null;
+  var bannerShown = false;
   var interstitialReady = false;
+  var lastInterstitialAt = 0;
 
-  async function initAds() {
+  // 初期化は1回だけ。完了したら true、失敗したら false で解決する
+  function initAds() {
+    if (readyPromise) return readyPromise;
     var AdMob = getAdMob();
-    if (!AdMob || initialized) return;
-    initialized = true;
-    try {
-      await AdMob.initialize({ initializeForTesting: BANNER_AD_ID === TEST_BANNER_ID });
-    } catch (e) {
-      console.warn("[ads] initialize failed", e);
-      return;
+    if (!AdMob) {
+      readyPromise = Promise.resolve(false);
+      return readyPromise;
     }
-    // iOS 14+ App Tracking Transparency prompt. Must be requested before
-    // showing personalized ads; AdMob will fall back to non-personalized
-    // ads automatically if the user declines.
-    try {
-      var status = await AdMob.trackingAuthorizationStatus();
-      if (status && status.status === "notDetermined") {
-        await AdMob.requestTrackingAuthorization();
+    readyPromise = (async function () {
+      try {
+        await AdMob.initialize({
+          initializeForTesting: BANNER_AD_ID === TEST_BANNER_ID,
+        });
+      } catch (e) {
+        console.warn("[ads] initialize failed", e);
+        return false;
       }
-    } catch (e) {
-      // Not available on this platform/version — fine to ignore.
-    }
-    preloadInterstitial();
+
+      // iOS14+ のATT（トラッキング許可）ダイアログ
+      try {
+        var status = await AdMob.trackingAuthorizationStatus();
+        if (status && status.status === "notDetermined") {
+          await AdMob.requestTrackingAuthorization();
+        }
+      } catch (e) {
+        // 対応していない環境では無視
+      }
+
+      // バナーのサイズが決まったら、その高さぶん余白を取る
+      try {
+        AdMob.addListener("bannerAdSizeChanged", function (info) {
+          if (info && info.height) setAdHeight(info.height);
+        });
+      } catch (e) {}
+
+      preloadInterstitial();
+      return true;
+    })();
+    return readyPromise;
   }
 
   async function showBannerAd() {
     var AdMob = getAdMob();
-    if (!AdMob) return;
+    if (!AdMob || bannerShown) return;
+    var ok = await initAds();
+    if (!ok) return;
+    bannerShown = true;
     try {
       await AdMob.showBanner({
         adId: BANNER_AD_ID,
@@ -75,18 +106,19 @@
         margin: 0,
       });
     } catch (e) {
+      bannerShown = false;
       console.warn("[ads] showBanner failed", e);
     }
   }
 
   async function hideBannerAd() {
     var AdMob = getAdMob();
-    if (!AdMob) return;
+    if (!AdMob || !bannerShown) return;
+    bannerShown = false;
+    setAdHeight(0);
     try {
       await AdMob.hideBanner();
-    } catch (e) {
-      // no-op — banner may not be showing yet
-    }
+    } catch (e) {}
   }
 
   async function preloadInterstitial() {
@@ -105,42 +137,35 @@
     var AdMob = getAdMob();
     if (!AdMob || !interstitialReady) return;
     interstitialReady = false;
+    lastInterstitialAt = Date.now();
     try {
       await AdMob.showInterstitial();
     } catch (e) {
       console.warn("[ads] showInterstitial failed", e);
     } finally {
-      preloadInterstitial(); // get the next one ready
+      preloadInterstitial(); // 次の広告を先読み
     }
   }
 
-  // Call this every time the player clears a level. Shows an interstitial
-  // every time (per the current design) — call from wherever the clear
-  // screen is dismissed, so the celebratory moment itself isn't interrupted.
+  // クリア画面を閉じるタイミングで呼ばれる。
+  // クリア3回に1回、かつ前回の全画面広告から90秒以上たっているときだけ表示。
   function showInterstitialOnClear() {
-    var AdMob = getAdMob();
-    if (!AdMob) return; // web preview — do nothing
+    if (!getAdMob()) return;
+    var n = 0;
+    try {
+      n = parseInt(localStorage.getItem(CLEAR_COUNT_KEY) || "0", 10) + 1;
+      localStorage.setItem(CLEAR_COUNT_KEY, String(n));
+    } catch (e) {
+      return; // 保存できないときは広告を出さない（連続表示の防止）
+    }
+    if (n % INTERSTITIAL_EVERY_N_CLEARS !== 0) return;
+    if (Date.now() - lastInterstitialAt < INTERSTITIAL_MIN_INTERVAL_MS) return;
     showInterstitialAdNow();
   }
 
-  // Call this every time the player taps "ひとつ戻す" (undo). Counts taps in
-  // localStorage and only actually shows an ad every INTERSTITIAL_EVERY_N_UNDOS taps.
-  function maybeShowInterstitialOnUndo() {
-    var AdMob = getAdMob();
-    if (!AdMob) return; // web preview — do nothing
-    var n = 0;
-    try {
-      n = parseInt(localStorage.getItem(UNDO_COUNT_KEY) || "0", 10) + 1;
-      localStorage.setItem(UNDO_COUNT_KEY, String(n));
-    } catch (e) {
-      n = INTERSTITIAL_EVERY_N_UNDOS; // if storage fails, just show it
-    }
-    if (n % INTERSTITIAL_EVERY_N_UNDOS === 0) {
-      showInterstitialAdNow();
-    }
-  }
+  // 「ひとつ戻す」では全画面広告を出さない（index.html側の呼び出しはそのまま残してOK）
+  function maybeShowInterstitialOnUndo() {}
 
-  // Expose a small global API for index.html / the game script to call.
   window.initAds = initAds;
   window.showBannerAd = showBannerAd;
   window.hideBannerAd = hideBannerAd;
