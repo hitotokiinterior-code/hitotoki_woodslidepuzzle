@@ -1,5 +1,6 @@
-/* layout.css — レベル選択・ゲーム画面を画面の中央に配置する
+/* layout.css — レベル選択・ゲーム画面を画面の中央（縦横とも）に配置する
  * index.html の </style> の直後で読み込む（元のCSSを上書きするため）
+ * 置き場所: index.html と同じ www/ フォルダ
  */
 
 /* 元のCSSは :root にセーフエリアの余白を付けていたので、body側に移して二重にならないようにする */
@@ -12,11 +13,19 @@ body {
   box-sizing: border-box;
   min-height: 100vh;
   min-height: 100dvh;          /* iOSのアドレスバー等を除いた実際の高さ */
-  justify-content: center;     /* 縦方向の中央寄せ（横方向は元から中央） */
+  justify-content: flex-start; /* 縦の中央寄せは下の auto マージンで行う */
   padding-top: calc(16px + env(safe-area-inset-top, 0px));
   /* 下はバナー広告の高さ(--ad-h は ads.js が設定)とセーフエリアぶんを確保。
      バナーを除いた領域の真ん中に表示される */
   padding-bottom: calc(16px + var(--ad-h, 0px) + env(safe-area-inset-bottom, 0px));
   padding-left: 14px;
   padding-right: 14px;
+}
+
+/* レベル選択画面・ゲーム画面を、空いている高さの真ん中に置く。
+   auto マージンなので、画面より背が高い場合でも上が切れずにスクロールできる */
+#levelSelect,
+#gameScreen {
+  margin-top: auto;
+  margin-bottom: auto;
 }
