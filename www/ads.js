@@ -28,26 +28,12 @@
   var CLEAR_COUNT_KEY = "wood-puzzle-clear-count";
 
   // バナーの高さは CSS変数 --ad-h に入れる。
-  // 画面下の余白は、下の中央寄せCSSの中で --ad-h を使って確保している。
+  // 画面下の余白は style.css が --ad-h を使って確保している。
   // ここではクリア画面(#win)だけ、バナーに隠れないよう余白を足す。
   var style = document.createElement("style");
   style.textContent =
     "#win{padding-bottom:calc(20px + var(--ad-h, 0px)) !important}";
   document.head.appendChild(style);
-
-  // 画面を縦横とも中央に寄せるCSS。
-  // 別ファイル(layout.css)に頼らず、ここで直接埋め込む（ファイルが読み込めない問題を避けるため）。
-  var layoutStyle = document.createElement("style");
-  layoutStyle.id = "layout-center-style";
-  layoutStyle.textContent =
-    ":root{padding-top:0 !important;padding-bottom:0 !important}" +
-    "body{box-sizing:border-box;min-height:100vh;min-height:100dvh;justify-content:flex-start;" +
-    "padding-top:calc(16px + env(safe-area-inset-top,0px));" +
-    "padding-bottom:calc(16px + var(--ad-h,0px) + env(safe-area-inset-bottom,0px));" +
-    "padding-left:14px;padding-right:14px}" +
-    "#levelSelect,#gameScreen{margin-top:auto;margin-bottom:auto}";
-  document.head.appendChild(layoutStyle);
-
   function setAdHeight(px) {
     document.documentElement.style.setProperty("--ad-h", (px || 0) + "px");
   }
