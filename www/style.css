@@ -1,0 +1,84 @@
+:root{--wd:#5c4326;--wm:#8a6238;--wl:#c99a5b;--bg:#f3e9d8;--ink:#3a2a18;--ac:#b0503a;
+ --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9 .04' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .12 0 0 0 0 .05 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+/* 画面全体: 縦横とも中央。上下の余白は、ノッチ・ホームバー・バナー広告(--ad-h は ads.js が設定)ぶん */
+body{box-sizing:border-box;min-height:100vh;min-height:100dvh;margin:0;color:var(--ink);
+ font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;display:flex;flex-direction:column;align-items:center;gap:12px;
+ padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(16px + var(--ad-h,0px) + env(safe-area-inset-bottom,0px));
+ -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none;
+ background:var(--bg) url(img/bg.jpg) center/cover fixed}
+.sub{font-size:.8rem;opacity:.9;margin:0;text-align:center;color:#fff8ea;text-shadow:0 2px 6px rgba(0,0,0,.55)}
+.stats{color:#fff8ea;text-shadow:0 2px 6px rgba(0,0,0,.55)}
+
+/* タイトル画面 */
+#titleScreen{position:fixed;inset:0;cursor:pointer;z-index:20;overflow:hidden}
+#titleScreen .bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+#titleScreen .tapstart{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff8ea;font-size:clamp(.75rem,4.2vw,1rem);
+ letter-spacing:.14em;text-shadow:0 2px 10px rgba(0,0,0,.6);white-space:nowrap;animation:fadeloop 3.2s ease-in-out infinite}
+@keyframes fadeloop{0%,100%{opacity:0}50%{opacity:1}}
+#titleScreen .brand{position:absolute;left:50%;top:16.5%;transform:translateX(-50%);text-align:center;color:#fff8ea;text-shadow:0 2px 10px rgba(0,0,0,.45);width:100%}
+#titleScreen .mark{width:clamp(64px,17vw,96px);margin:0 auto .6vh;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+#titleScreen .wordmark{width:clamp(170px,46vw,270px);margin:0 auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+#titleScreen .mark img,#titleScreen .wordmark img{width:100%;display:block}
+#titleScreen .subline{font-family:'Fredoka',sans-serif;font-weight:600;font-size:clamp(.8rem,3.2vw,1.05rem);letter-spacing:.28em;margin-top:1.2vh;opacity:.95}
+#titleScreen .subline::before,#titleScreen .subline::after{content:"—";margin:0 .4em;opacity:.8}
+
+/* レベル選択 */
+#levelSelect{display:none;flex-direction:column;align-items:center;width:100%;max-width:360px;margin:auto 0}
+.plaque{position:relative;width:100%;box-sizing:border-box;border-radius:20px;padding:18px 16px 20px;
+ background:var(--grain),linear-gradient(165deg,#5c4326,#3a2a18);
+ box-shadow:0 0 0 3px #2a1e10,0 0 0 5px #7a5630,0 14px 30px rgba(0,0,0,.4);color:#fff8ea}
+.plaque .screw{position:absolute;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e0c48a,#5c4326 70%);opacity:.8}
+.plaque .screw.tl{top:10px;left:10px}.plaque .screw.tr{top:10px;right:10px}.plaque .screw.bl{bottom:10px;left:10px}.plaque .screw.br{bottom:10px;right:10px}
+.plaqueHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.roundBtn{width:42px;height:42px;border-radius:50%;border:1.5px solid rgba(255,232,190,.55);background:linear-gradient(160deg,var(--wl),var(--wd));
+ color:#fff8ea;font-size:1.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,.4);flex:none}
+.roundBtn:active{transform:translateY(1px)}
+.plaqueTitle{font-size:1.02rem;font-weight:700;letter-spacing:.14em;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.lvGrid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:82px;align-content:start;gap:10px;width:100%;min-height:266px}
+.lvCard{height:82px;box-sizing:border-box;border-radius:12px;padding:8px 4px 7px;text-align:center;cursor:pointer;color:#fff8ea;
+ border:1.5px solid rgba(255,225,170,.35);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),0 3px 0 rgba(0,0,0,.4);
+ background:var(--grain),linear-gradient(160deg,#6b4d2c,#3f2c18);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.lvCard:active{transform:translateY(2px)}
+.lvnum{font-size:1.15rem;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.lvstars{font-size:.72rem;letter-spacing:1px;color:#4a3a28}
+.lvstars .on{color:#f4c85a;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.pageNav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px}
+.pageNav .pageLabel{font-size:.8rem;letter-spacing:.08em;min-width:38px;text-align:center;opacity:.9}
+.pageNav .roundBtn.hide{visibility:hidden}
+
+/* ゲーム画面 */
+#gameScreen{display:none;flex-direction:column;align-items:center;gap:12px;margin:auto 0}
+#board{position:relative;width:280px;height:350px;border-radius:10px;touch-action:none;
+ background:var(--grain),repeating-linear-gradient(90deg,#4a3620 0 2px,transparent 2px 70px),linear-gradient(160deg,#3a2a18,#2a1e10);
+ box-shadow:inset 0 0 0 4px #2a1e10,0 0 0 6px #7a5630,0 0 0 8px #4a3620,0 10px 20px rgba(0,0,0,.3)}
+.exit{position:absolute;background:#efe3c8;box-shadow:inset 0 3px 6px rgba(0,0,0,.25)}
+.exit.side-D{bottom:-14px;height:16px;border-radius:0 0 8px 8px}.exit.side-U{top:-14px;height:16px;border-radius:8px 8px 0 0}
+.exit.side-L{left:-14px;width:16px;border-radius:8px 0 0 8px}.exit.side-R{right:-14px;width:16px;border-radius:0 8px 8px 0}
+.piece{position:absolute;border-radius:8px;cursor:grab;touch-action:none;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#fff8ea;
+ --a:#c99a5b;--b:#8a6238;background:var(--grain),repeating-linear-gradient(100deg,rgba(0,0,0,.06) 0 3px,transparent 3px 9px),linear-gradient(160deg,var(--a),var(--b));
+ box-shadow:0 3px 0 rgba(0,0,0,.4),inset 0 2px 0 rgba(255,255,255,.22),inset 0 -2px 0 rgba(0,0,0,.2);
+ transition:left .14s ease,top .14s ease,transform .1s,box-shadow .1s}
+.piece::after{content:"";position:absolute;inset:5px;border-radius:5px;border:1.5px solid rgba(60,35,10,.28);pointer-events:none}
+.piece[data-k=s]{--a:#d8ae72;--b:#a0713f}.piece[data-k=h]{--a:#bd8a4e;--b:#7d5430}.piece[data-k=v]{--a:#c4925a;--b:#84582f}
+.piece[data-k=t]{--a:#e6a67a;--b:#b0503a;text-shadow:0 1px 2px rgba(0,0,0,.35);font-size:1.4rem}
+.piece.drag{transition:none;transform:scale(1.04);z-index:5;cursor:grabbing;box-shadow:0 8px 12px rgba(0,0,0,.4),inset 0 2px 0 rgba(255,255,255,.22)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+button.act{border:none;border-radius:999px;padding:9px 18px;font-size:.85rem;background:var(--wm);color:#fff8ea;box-shadow:0 3px 0 var(--wd)}
+button.act:active{transform:translateY(2px);box-shadow:0 1px 0 var(--wd)}
+button.ghost{background:transparent;color:#fff8ea;box-shadow:none;text-decoration:underline;padding:9px 6px;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+
+/* クリア画面 */
+#win{position:fixed;inset:0;background:rgba(20,14,6,.68);display:none;align-items:center;justify-content:center;z-index:10;padding:20px;overflow:hidden}
+#win .card{position:relative;background:var(--grain),linear-gradient(165deg,#2f2013,#1c130c);border-radius:20px;padding:30px 26px 24px;text-align:center;max-width:280px;width:100%;
+ box-shadow:0 16px 40px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,220,160,.15);color:#fff8ea}
+#win .crown{font-size:1.7rem;margin-bottom:2px}
+#win h2{margin:0 0 14px;font-size:1.5rem;letter-spacing:.12em;color:#ffd98a;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+#win .statbox{display:flex;justify-content:center;gap:22px;background:rgba(0,0,0,.25);border-radius:12px;padding:12px 10px;margin-bottom:10px}
+#win .stat .n{font-size:1.25rem;font-weight:700;color:#fff8ea}#win .stat .l{font-size:.62rem;letter-spacing:.12em;opacity:.65;margin-top:2px}
+#win .newbest{display:inline-block;font-size:.68rem;letter-spacing:.08em;color:#2a1e10;background:linear-gradient(160deg,#ffe9a8,#e0ab55);padding:4px 12px;border-radius:999px;font-weight:700;margin-bottom:6px}
+#win p.sub2{margin:0 0 14px;font-size:.72rem;opacity:.65}
+#win .confetti{position:absolute;top:-10px;border-radius:1px;opacity:.9;animation:fall 1.4s ease-in forwards}
+@keyframes fall{to{transform:translateY(340px) rotate(220deg);opacity:0}}
+.winbtns{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+#win button.ghost{color:#e9d3ab;text-decoration:underline}
