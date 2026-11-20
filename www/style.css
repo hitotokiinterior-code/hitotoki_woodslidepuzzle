@@ -133,3 +133,8 @@ button.ghost{background:transparent;color:#fff8ea;box-shadow:none;text-decoratio
 .navRow{display:flex;align-items:center;gap:.9em;width:var(--bw,356px)}
 .navRow .lsLink{flex:1;width:auto;min-width:0}
 .homeBtn{flex:none;padding:.5em .9em;font-size:.82em}
+
+/* ボタン配置：上段=戻す/ホーム/やり直す、右下=ヒント。ヘッダーと盤面の間を少し空ける */
+.hud{margin-bottom:1.1em}
+.hintRow{display:flex;justify-content:flex-end;width:var(--bw,356px);margin-top:-.2em}
+.hintRow .wbtn{flex:0 0 33%}
