@@ -35,11 +35,13 @@
 </div>
 <div id="gameScreen">
   <p class="sub" id="lvTitle"></p>
-  <div class="stats">手数: <b id="moves">0</b></div>
+  <div class="stats">手数: <b id="moves">0</b><span class="par"> / 最小 <b id="parN">-</b></span></div>
   <div id="board"></div>
   <p class="sub">木箱をドラッグして動かそう。「娘」を出口へ</p>
+  <div class="hintMsg" id="hintMsg"></div>
   <div class="controls">
     <button class="act" id="undoBtn">ひとつ戻す</button>
+    <button class="act" id="hintBtn">ヒント</button>
     <button class="act" id="resetBtn">最初から</button>
     <button class="act ghost" id="backBtn">レベル選択</button>
   </div>
@@ -47,6 +49,7 @@
 <div id="win"><div class="card" id="winCard">
   <div class="crown">👑</div>
   <h2>CLEAR</h2>
+  <div class="winStars" id="winStars"><span>★</span><span>★</span><span>★</span></div>
   <div id="newBestTag" class="newbest" style="display:none">NEW BEST!</div>
   <div class="statbox">
     <div class="stat"><div class="n" id="statMoves"></div><div class="l">今回の手数</div></div>
@@ -58,6 +61,7 @@
 </div></div>
 <script src="ads.js"></script>
 <script src="levels.js"></script>
+<script src="solver.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
