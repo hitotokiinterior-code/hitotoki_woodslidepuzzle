@@ -124,3 +124,12 @@ button.ghost{background:transparent;color:#fff8ea;box-shadow:none;text-decoratio
 .piece[data-k=t]{font-family:var(--serif);font-weight:500;font-size:1.7em;color:#fbe9d0;text-shadow:0 1px 2px rgba(60,20,10,.5)}
 .controls{flex-wrap:nowrap;gap:.6em;width:var(--bw,356px)}
 .wbtn{flex:1 1 0;justify-content:center;white-space:nowrap;padding:.65em .4em;font-size:.88em;gap:.35em}
+
+/* ヘッダー板を低く／ホームボタン */
+.hud{padding:.4em 1.1em .45em}
+.hudTop{font-size:.78em;padding-bottom:.2em}
+.hudStats{margin-top:.2em}.hudStats i{height:2.1em}
+.hudStats small{font-size:.68em}.hudStats b{font-size:1.65em;line-height:1.05}
+.navRow{display:flex;align-items:center;gap:.9em;width:var(--bw,356px)}
+.navRow .lsLink{flex:1;width:auto;min-width:0}
+.homeBtn{flex:none;padding:.5em .9em;font-size:.82em}
