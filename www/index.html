@@ -34,17 +34,19 @@
   </div>
 </div>
 <div id="gameScreen">
-  <p class="sub" id="lvTitle"></p>
-  <div class="stats">手数: <b id="moves">0</b><span class="par"> / 最小 <b id="parN">-</b></span></div>
+  <div class="hud">
+    <div class="hudTop"><span id="lvTitle"></span><span id="stageNo"></span></div>
+    <div class="hudStats"><div><small>現在の手数</small><b id="moves">00</b></div><i></i><div><small>最小手数</small><b id="parN">00</b></div></div>
+  </div>
   <div id="board"></div>
-  <p class="sub">木箱をドラッグして動かそう。「娘」を出口へ</p>
+  <p class="cap">木箱を動かして、娘を出口へ導こう。</p>
   <div class="hintMsg" id="hintMsg"></div>
   <div class="controls">
-    <button class="act" id="undoBtn">ひとつ戻す</button>
-    <button class="act" id="hintBtn">ヒント</button>
-    <button class="act" id="resetBtn">最初から</button>
-    <button class="act ghost" id="backBtn">レベル選択</button>
+    <button class="wbtn" id="undoBtn"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>ひとつ戻す</button>
+    <button class="wbtn" id="hintBtn"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>ヒント</button>
+    <button class="wbtn" id="resetBtn"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.7-6"/><path d="M20 4v5h-5"/></svg>やり直す</button>
   </div>
+  <button class="lsLink" id="backBtn">LEVEL SELECT <span>›</span></button>
 </div>
 <div id="win"><div class="card" id="winCard">
   <div class="crown">👑</div>

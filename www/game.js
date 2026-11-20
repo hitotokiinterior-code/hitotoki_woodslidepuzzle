@@ -8,8 +8,12 @@ let CELL=70,page=0,cur=0,pieces=[],moves=0,history=[],els={},drag=null,busy=fals
 try{mute=localStorage.getItem('wood-mute')==='1'}catch(e){}
 
 /* ---- サイズ ---- */
+const pad2=n=>String(n).padStart(2,'0');
 function sizeBoard(){
-  CELL=Math.round(Math.max(58,Math.min(96,(Math.min(440,window.innerWidth)-36)/COLS)));
+  /* 横幅いっぱい／縦に収まる大きさ（PCなど広い画面では高さに合わせてぐっと大きく） */
+  const ad=parseFloat(getComputedStyle(document.body).getPropertyValue('--ad-h'))||0;
+  CELL=Math.floor(Math.max(58,Math.min(150,(Math.min(window.innerWidth,900)-44)/COLS,(window.innerHeight-ad-350)/ROWS)));
+  $('gameScreen').style.setProperty('--bw',(CELL*COLS)+'px');
   board.style.width=(CELL*COLS)+'px';board.style.height=(CELL*ROWS)+'px';
 }
 
@@ -72,7 +76,7 @@ $('soundBtn').addEventListener('click',()=>{ac();mute=!mute;try{localStorage.set
   $('soundBtn').style.opacity=mute?'.55':'1';if(!mute)tock()});
 function startLevel(i){
   cur=i;page=Math.floor(i/PAGE_SIZE);$('levelSelect').style.display='none';$('gameScreen').style.display='flex';
-  $('lvTitle').textContent='Lv.'+(i+1);resetGame();
+  $('lvTitle').textContent='LEVEL '+pad2(i+1);$('stageNo').textContent='STAGE '+pad2(i+1)+' / '+pad2(LEVELS.length);resetGame();
   if(window.showBannerAd)showBannerAd();
 }
 function backToList(){$('gameScreen').style.display='none';$('levelSelect').style.display='flex';buildLevelGrid();if(window.showBannerAd)showBannerAd()}
@@ -136,7 +140,7 @@ function build(){
     els[p.id]=el;board.appendChild(el);
   });
 }
-function render(){pieces.forEach(p=>place(els[p.id],p));$('moves').textContent=moves}
+function render(){pieces.forEach(p=>place(els[p.id],p));$('moves').textContent=pad2(moves)}
 
 /* ---- ドラッグ ---- */
 function onDown(e,id,el){
@@ -164,7 +168,7 @@ function onUp(){
   if(!n){place(d.el,p);return}
   history.push(clone(pieces));
   if(d.axis==='x')p.x+=n;else p.y+=n;
-  moves++;place(d.el,p);$('moves').textContent=moves;tock();checkWin();
+  moves++;place(d.el,p);$('moves').textContent=pad2(moves);tock();checkWin();
 }
 
 /* ---- ヒント：いまの盤面から最短で解く手順の「最初の一手」を光らせる ---- */
@@ -212,7 +216,7 @@ function spawnConfetti(){
     card.appendChild(s);setTimeout(()=>s.remove(),2200);
   }
 }
-function resetGame(){sizeBoard();pieces=clone(LEVELS[cur].pieces);moves=0;history=[];busy=false;$('parN').textContent=LEVELS[cur].ref;build();render();clearHint()}
+function resetGame(){sizeBoard();pieces=clone(LEVELS[cur].pieces);moves=0;history=[];busy=false;$('parN').textContent=pad2(LEVELS[cur].ref);build();render();clearHint()}
 let resizeT;
 window.addEventListener('resize',()=>{clearTimeout(resizeT);resizeT=setTimeout(()=>{
   if($('gameScreen').style.display==='flex'&&pieces.length){sizeBoard();build();render()}},150)});

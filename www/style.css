@@ -52,7 +52,7 @@ body{box-sizing:border-box;min-height:100vh;min-height:100dvh;margin:0;color:var
 #gameScreen{display:none;flex-direction:column;align-items:center;gap:12px;margin:auto 0}
 #board{position:relative;width:280px;height:350px;border-radius:10px;touch-action:none;
  background:var(--grain),repeating-linear-gradient(90deg,#4a3620 0 2px,transparent 2px 70px),linear-gradient(160deg,#3a2a18,#2a1e10);
- box-shadow:inset 0 0 0 4px #2a1e10,0 0 0 6px #7a5630,0 0 0 8px #4a3620,0 10px 20px rgba(0,0,0,.3)}
+ box-shadow:inset 0 0 0 3px #1f150c,inset 0 6px 14px rgba(0,0,0,.5),0 0 0 11px #7b4f2b,0 0 0 12px #3e2713,0 0 0 13px rgba(240,200,140,.35),0 18px 28px rgba(0,0,0,.45)}
 .exit{position:absolute;background:#efe3c8;box-shadow:inset 0 3px 6px rgba(0,0,0,.25)}
 .exit.side-D{bottom:-14px;height:16px;border-radius:0 0 8px 8px}.exit.side-U{top:-14px;height:16px;border-radius:8px 8px 0 0}
 .exit.side-L{left:-14px;width:16px;border-radius:8px 0 0 8px}.exit.side-R{right:-14px;width:16px;border-radius:0 8px 8px 0}
@@ -93,3 +93,34 @@ button.ghost{background:transparent;color:#fff8ea;box-shadow:none;text-decoratio
 @keyframes fall{to{transform:translateY(340px) rotate(220deg);opacity:0}}
 .winbtns{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 #win button.ghost{color:#e9d3ab;text-decoration:underline}
+
+/* ---- 完成イメージ寄せ：ゲーム画面 ---- */
+#gameScreen{font-size:calc(var(--bw,356px)/22);gap:.9em;--serif:"Cormorant Garamond","Hoefler Text",Georgia,"Hiragino Mincho ProN","Yu Mincho",serif}
+.hud{width:calc(var(--bw,356px)*.9);box-sizing:border-box;padding:.7em 1.2em .75em;border-radius:.4em;color:#f6e8cc;font-family:var(--serif);
+ background:var(--grain),linear-gradient(170deg,#4a3320,#2c1d11);
+ box-shadow:0 0 0 1px #b88a52,0 0 0 4px #3a2616,0 0 0 5px rgba(212,170,110,.5),0 10px 22px rgba(0,0,0,.45)}
+.hudTop{display:flex;justify-content:space-between;font-size:.85em;letter-spacing:.12em;padding-bottom:.4em;border-bottom:1px solid rgba(214,172,112,.55)}
+.hudStats{display:flex;justify-content:space-around;align-items:center;margin-top:.4em}
+.hudStats i{width:1px;height:3em;background:rgba(214,172,112,.45)}
+.hudStats>div{text-align:center}.hudStats small{display:block;font-size:.72em;letter-spacing:.1em}
+.hudStats b{font-size:2.2em;font-weight:500;letter-spacing:.05em;line-height:1.1}
+.cap{display:flex;align-items:center;gap:.8em;width:var(--bw,356px);margin:.3em 0 0;font-family:var(--serif);font-size:.95em;color:#f6e8cc;white-space:nowrap;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.cap::before,.cap::after,.lsLink::before,.lsLink::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(240,200,140,.85))}
+.cap::after,.lsLink::after{transform:scaleX(-1)}
+.hintMsg{font-size:.8em}
+.wbtn{display:flex;align-items:center;gap:.45em;border:1px solid rgba(214,172,112,.65);border-radius:999px;padding:.65em 1.1em;font-size:.95em;color:#f6e8cc;
+ font-family:var(--serif);letter-spacing:.05em;background:var(--grain),linear-gradient(180deg,#6a4426,#3d2815);
+ box-shadow:inset 0 1px 0 rgba(255,225,170,.25),0 3px 0 #1f150c,0 6px 10px rgba(0,0,0,.35)}
+.wbtn:active{transform:translateY(2px)}
+.wbtn svg{width:1.3em;height:1.3em;stroke:#f2d9a8;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.lsLink{display:flex;align-items:center;gap:1em;width:var(--bw,356px);border:0;background:none;color:#f6e8cc;font:inherit;font-family:var(--serif);letter-spacing:.22em;font-size:.9em;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.lsLink span{margin-left:-.6em}
+/* 木箱：完成イメージの木目を貼る */
+.piece{font-size:1em;border-radius:.55em}
+.piece[data-k]{background-size:cover;background-position:center}
+.piece[data-k=s]{background-image:url(img/wood_s.jpg)}.piece[data-k=h]{background-image:url(img/wood_h.jpg)}
+.piece[data-k=v]{background-image:url(img/wood_v.jpg)}.piece[data-k=t]{background-image:url(img/wood_t.jpg)}
+.piece::after{border-color:rgba(60,35,10,.16)}
+.piece[data-k=t]{font-family:var(--serif);font-weight:500;font-size:1.7em;color:#fbe9d0;text-shadow:0 1px 2px rgba(60,20,10,.5)}
+.controls{flex-wrap:nowrap;gap:.6em;width:var(--bw,356px)}
+.wbtn{flex:1 1 0;justify-content:center;white-space:nowrap;padding:.65em .4em;font-size:.88em;gap:.35em}
