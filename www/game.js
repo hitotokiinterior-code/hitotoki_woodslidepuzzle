@@ -1,3 +1,7 @@
+/* 画像の先読み：木箱・宝石の画像を起動時に読み込んでデコードしておく（レベルに入った瞬間に宝石が一瞬消えるのを防ぐ） */
+['gem_coal','gem_ruby','gem_gold','gem_emerald','gem_sapphire','gem_pink','wood_h','wood_v','wood_s','wood_t'].forEach(n=>{
+  const im=new Image();im.src='img/'+n+'.jpg';if(im.decode)im.decode().catch(()=>{});window._preload=(window._preload||[]).concat(im);
+});
 /* 木箱すべりパズル：ゲーム本体。レベルは levels.js、見た目は style.css */
 const COLS=4,ROWS=5,PAGE_SIZE=9;
 const LEVELS=LEVEL_DATA.map(d=>({k:d.k,ref:d.ref,exit:{side:d.exit[0],pos:+d.exit[1]},
