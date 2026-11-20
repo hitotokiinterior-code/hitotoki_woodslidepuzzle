@@ -28,6 +28,12 @@ function tock(){
   s.buffer=buf;f.type='bandpass';f.frequency.value=1300;g2.gain.value=.3;
   s.connect(f).connect(g2).connect(a.destination);s.start(t);
 }
+function starPing(i){
+  if(mute)return;const a=ac();if(!a)return;const t=a.currentTime,o=a.createOscillator(),g=a.createGain();
+  o.type='sine';o.frequency.value=[660,880,1175][i]||880;g.gain.setValueAtTime(.0001,t);
+  g.gain.exponentialRampToValueAtTime(.22,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.4);
+  o.connect(g).connect(a.destination);o.start(t);o.stop(t+.45);
+}
 function chime(){
   if(mute)return;const a=ac();if(!a)return;
   [523,659,784,1047].forEach((fr,i)=>{
@@ -44,7 +50,9 @@ function getBest(i){try{const v=localStorage.getItem(bestKey(i));return v?parseI
 function setBest(i,v){try{const c=getBest(i);if(c===null||v<c)localStorage.setItem(bestKey(i),String(v))}catch(e){}}
 
 /* ---- レベル選択 ---- */
-function starCount(best,ref){return best==null?0:best<=ref?3:best<=ref*1.15?2:1}
+/* 星の基準：★3は最小手数＋ちょっとの余裕（最小手数の1割、最低1手）、★2は最小手数の1.5倍まで。ここの数字を変えれば調整できる */
+const starLimits=ref=>[ref+Math.max(1,Math.floor(ref*0.1)),Math.ceil(ref*1.5)];
+function starCount(best,ref){if(best==null)return 0;const[s3,s2]=starLimits(ref);return best<=s3?3:best<=s2?2:1}
 function buildLevelGrid(){
   const g=$('lvGrid');g.innerHTML='';
   const start=page*PAGE_SIZE,end=Math.min(LEVELS.length,start+PAGE_SIZE);
@@ -64,7 +72,7 @@ $('soundBtn').addEventListener('click',()=>{ac();mute=!mute;try{localStorage.set
   $('soundBtn').style.opacity=mute?'.55':'1';if(!mute)tock()});
 function startLevel(i){
   cur=i;page=Math.floor(i/PAGE_SIZE);$('levelSelect').style.display='none';$('gameScreen').style.display='flex';
-  $('lvTitle').textContent='Lv.'+(i+1)+'（最小 '+LEVELS[i].ref+'手）';resetGame();
+  $('lvTitle').textContent='Lv.'+(i+1);resetGame();
   if(window.showBannerAd)showBannerAd();
 }
 function backToList(){$('gameScreen').style.display='none';$('levelSelect').style.display='flex';buildLevelGrid();if(window.showBannerAd)showBannerAd()}
@@ -134,7 +142,7 @@ function render(){pieces.forEach(p=>place(els[p.id],p));$('moves').textContent=m
 function onDown(e,id,el){
   if(busy||drag)return;ac();
   const p=pieces.find(x=>x.id===id);
-  drag={id,el,sx:e.clientX,sy:e.clientY,lim:limits(p),axis:null,off:0};
+  clearHint();drag={id,el,sx:e.clientX,sy:e.clientY,lim:limits(p),axis:null,off:0};
   el.setPointerCapture(e.pointerId);el.classList.add('drag');
 }
 function onMove(e){
@@ -159,6 +167,21 @@ function onUp(){
   moves++;place(d.el,p);$('moves').textContent=moves;tock();checkWin();
 }
 
+/* ---- ヒント：いまの盤面から最短で解く手順の「最初の一手」を光らせる ---- */
+function clearHint(){document.querySelectorAll('.piece.hint').forEach(e=>{e.classList.remove('hint');e.removeAttribute('data-hint')});$('hintMsg').textContent=''}
+function showHint(){
+  if(busy||drag)return;clearHint();
+  const sol=window.solvePuzzle&&solvePuzzle(pieces,curExit());
+  if(!sol||!sol.length){$('hintMsg').textContent='この盤面のヒントは出せませんでした';return}
+  const m=sol[0],p=pieces[m.i],n=Math.abs(m.dx||m.dy);
+  const arrow=m.dx>0?'→':m.dx<0?'←':m.dy>0?'↓':'↑',name=m.dx>0?'右':m.dx<0?'左':m.dy>0?'下':'上';
+  els[p.id].classList.add('hint');els[p.id].dataset.hint=arrow;
+  $('hintMsg').textContent='光っている木箱を'+name+'へ'+n+'マス（クリアまで あと'+sol.length+'手）';
+}
+/* 広告を後から付けるときは、ads.js に showRewardedForHint(callback) を作れば、
+   「動画を見たらヒント」になる（広告を見終わったら callback() を呼ぶ）。無ければそのまま表示する */
+$('hintBtn').addEventListener('click',()=>{if(window.showRewardedForHint)showRewardedForHint(showHint);else showHint()});
+
 /* ---- クリア ---- */
 function checkWin(){
   const t=pieces.find(x=>x.id==='target'),ex=curExit();
@@ -170,11 +193,15 @@ function checkWin(){
     setTimeout(()=>{
       const prev=getBest(cur);setBest(cur,moves);
       $('statMoves').textContent=moves;$('statBest').textContent=getBest(cur);
-      $('statPar').textContent='最小手数: '+LEVELS[cur].ref+'手';
+      const ref=LEVELS[cur].ref;$('statPar').textContent='最小 '+ref+'手 ／ ★3は '+starLimits(ref)[0]+'手以内';
       $('newBestTag').style.display=(prev===null||moves<prev)?'inline-block':'none';
       $('nextBtn').style.display=cur<LEVELS.length-1?'inline-block':'none';
-      spawnConfetti();$('win').style.display='flex';
+      spawnConfetti();$('win').style.display='flex';showWinStars(starCount(moves,ref));
     },300)},120);
+}
+function showWinStars(n){
+  const ss=[...$('winStars').children];ss.forEach(s=>s.classList.remove('on'));
+  ss.slice(0,n).forEach((s,i)=>setTimeout(()=>{s.classList.add('on');starPing(i)},400+i*380));
 }
 function spawnConfetti(){
   const card=$('winCard'),cols=['#e0ab55','#b0503a','#6f8b5e','#fff8ea','#8a6238'];
@@ -185,13 +212,13 @@ function spawnConfetti(){
     card.appendChild(s);setTimeout(()=>s.remove(),2200);
   }
 }
-function resetGame(){sizeBoard();pieces=clone(LEVELS[cur].pieces);moves=0;history=[];busy=false;build();render()}
+function resetGame(){sizeBoard();pieces=clone(LEVELS[cur].pieces);moves=0;history=[];busy=false;$('parN').textContent=LEVELS[cur].ref;build();render();clearHint()}
 let resizeT;
 window.addEventListener('resize',()=>{clearTimeout(resizeT);resizeT=setTimeout(()=>{
   if($('gameScreen').style.display==='flex'&&pieces.length){sizeBoard();build();render()}},150)});
 
 /* ---- ボタン ---- */
-$('undoBtn').addEventListener('click',()=>{if(busy||!history.length)return;pieces=history.pop();moves=Math.max(0,moves-1);render();
+$('undoBtn').addEventListener('click',()=>{if(busy||!history.length)return;clearHint();pieces=history.pop();moves=Math.max(0,moves-1);render();
   if(window.maybeShowInterstitialOnUndo)maybeShowInterstitialOnUndo()});
 $('resetBtn').addEventListener('click',resetGame);
 $('backBtn').addEventListener('click',backToList);
