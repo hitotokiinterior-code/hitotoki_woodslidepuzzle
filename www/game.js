@@ -12,7 +12,7 @@ const pad2=n=>String(n).padStart(2,'0');
 function sizeBoard(){
   /* 横幅いっぱい／縦に収まる大きさ（PCなど広い画面では高さに合わせてぐっと大きく） */
   const ad=parseFloat(getComputedStyle(document.body).getPropertyValue('--ad-h'))||0;
-  CELL=Math.floor(Math.max(58,Math.min(150,(Math.min(window.innerWidth,900)-44)/COLS,(window.innerHeight-ad-350)/ROWS)));
+  CELL=Math.floor(Math.max(58,Math.min(150,(Math.min(window.innerWidth,900)-44)/COLS,(window.innerHeight-ad-385)/ROWS)));
   $('gameScreen').style.setProperty('--bw',(CELL*COLS)+'px');
   board.style.width=(CELL*COLS)+'px';board.style.height=(CELL*ROWS)+'px';
 }
