@@ -76,6 +76,7 @@ $('soundBtn').addEventListener('click',()=>{ac();mute=!mute;try{localStorage.set
   $('soundBtn').style.opacity=mute?'.55':'1';if(!mute)tock()});
 function startLevel(i){
   cur=i;page=Math.floor(i/PAGE_SIZE);$('levelSelect').style.display='none';$('gameScreen').style.display='flex';
+  skin=String(LEVELS[i].k)[0]==='e'?'coal':GEMS[Math.floor(Math.random()*GEMS.length)];
   $('lvTitle').textContent='LEVEL '+pad2(i+1);$('stageNo').textContent='STAGE '+pad2(i+1)+' / '+pad2(LEVELS.length);resetGame();
   if(window.showBannerAd)showBannerAd();
 }
@@ -128,13 +129,15 @@ function buildExit(){
   else{el.style.height=(2*CELL)+'px';el.style.top=(ex.pos*CELL)+'px'}
   board.appendChild(el);
 }
+/* ゴールのブロックの見た目：入門レベル(e1〜e5)は石炭、そのほかは宝石からランダム（レベルに入るたびに抽選） */
+const GEMS=['ruby','gold','emerald','sapphire','pink'];let skin='coal';
 function build(){
   board.querySelectorAll('.piece').forEach(e=>e.remove());els={};buildExit();
   pieces.forEach(p=>{
     const el=document.createElement('div');el.className='piece';
     el.dataset.k=p.id==='target'?'t':p.w*p.h===1?'s':p.w>p.h?'h':'v';
     el.style.width=(p.w*CELL-6)+'px';el.style.height=(p.h*CELL-6)+'px';
-    if(p.id==='target')el.textContent='娘';
+    if(p.id==='target')el.dataset.skin=skin;
     el.addEventListener('pointerdown',e=>onDown(e,p.id,el));
     el.addEventListener('pointermove',onMove);el.addEventListener('pointerup',onUp);el.addEventListener('pointercancel',onUp);
     els[p.id]=el;board.appendChild(el);

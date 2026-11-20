@@ -138,3 +138,12 @@ button.ghost{background:transparent;color:#fff8ea;box-shadow:none;text-decoratio
 .hud{margin-bottom:1.1em}
 .hintRow{display:flex;justify-content:flex-end;width:var(--bw,356px);margin-top:-.2em}
 .hintRow .wbtn{flex:0 0 33%}
+
+/* ゴールのブロック：宝石／石炭 */
+.piece[data-k=t][data-skin=ruby]{background-image:url(img/gem_ruby.jpg)}
+.piece[data-k=t][data-skin=gold]{background-image:url(img/gem_gold.jpg)}
+.piece[data-k=t][data-skin=emerald]{background-image:url(img/gem_emerald.jpg)}
+.piece[data-k=t][data-skin=sapphire]{background-image:url(img/gem_sapphire.jpg)}
+.piece[data-k=t][data-skin=pink]{background-image:url(img/gem_pink.jpg)}
+.piece[data-k=t][data-skin=coal]{background-image:url(img/gem_coal.jpg)}
+.piece[data-k=t]::after{display:none}
