@@ -226,7 +226,7 @@ $('undoBtn').addEventListener('click',()=>{if(busy||!history.length)return;clear
   if(window.maybeShowInterstitialOnUndo)maybeShowInterstitialOnUndo()});
 $('resetBtn').addEventListener('click',resetGame);
 $('backBtn').addEventListener('click',backToList);
-$('homeBtn').addEventListener('click',()=>{clearHint();$('win').style.display='none';$('gameScreen').style.display='none';$('titleScreen').style.display='block'});
+$('homeBtn').addEventListener('click',()=>{clearHint();$('win').style.display='none';backToList()});
 const afterClear=fn=>()=>{if(window.showInterstitialOnClear)showInterstitialOnClear();$('win').style.display='none';fn()};
 $('retryBtn').addEventListener('click',afterClear(resetGame));
 $('nextBtn').addEventListener('click',afterClear(()=>startLevel(Math.min(cur+1,LEVELS.length-1))));
