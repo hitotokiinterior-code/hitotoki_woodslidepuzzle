@@ -1,0 +1,12 @@
+{
+  "outputDirectory": "www",
+  "headers": [
+    {
+      "source": "/news.json",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    }
+  ]
+}

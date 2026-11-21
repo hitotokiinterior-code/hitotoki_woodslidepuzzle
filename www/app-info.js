@@ -6,5 +6,7 @@ window.APP_INFO={
   operator:'【運営者名（屋号または氏名）】',
   email:'【問い合わせ用メールアドレス】',
   effective:'【施行日（例：2026年12月1日）】',
-  year:'2026'
+  year:'2026',
+  /* お知らせ(news.json)の置き場所。アプリ(iOS)では、公開サイトの絶対URLにすること。例：'https://あなたのサイト.vercel.app/news.json' */
+  newsUrl:''
 };

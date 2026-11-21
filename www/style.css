@@ -165,3 +165,15 @@ button.ghost{background:transparent;color:#fff8ea;box-shadow:none;text-decoratio
 .sBack{border:0;background:none;color:#f2d9a8;font:inherit;padding:.4em 0 .6em;cursor:pointer}
 .sText{line-height:1.85;font-size:.95rem;padding:.2em .2em 1em}.sText p{margin:.4em 0}
 .sDoc{width:100%;height:min(460px,64vh);border:0;border-radius:8px;background:#fbf6ec}
+
+/* ---- お知らせ（右上のベル） ---- */
+#bellBtn{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:40;display:flex;align-items:center;justify-content:center;padding:0}
+#bellBtn svg{width:22px;height:22px;stroke:#fff8ea;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bellBadge{display:none;position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:#d0452f;
+ color:#fff;font:700 11px/18px -apple-system,sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.5)}
+#news{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:70;background:rgba(12,7,3,.62);padding:16px;box-sizing:border-box}
+.nItem{padding:.9em .3em;border-bottom:1px solid rgba(214,172,112,.25)}
+.nMeta{font-size:.75rem;letter-spacing:.08em;opacity:.8}
+.nNew{margin-left:.7em;padding:.05em .5em;border-radius:1em;background:#d0452f;color:#fff;font-size:.68rem;letter-spacing:.05em}
+.nTitle{font-size:1.02rem;margin:.3em 0 .2em}.nBody{font-size:.9rem;line-height:1.75;white-space:pre-wrap;opacity:.92}
+.nLink{display:inline-block;margin-top:.5em;color:#f2d9a8;font-size:.9rem}
