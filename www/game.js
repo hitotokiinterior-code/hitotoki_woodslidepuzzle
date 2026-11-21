@@ -76,8 +76,6 @@ function buildLevelGrid(){
 $('prevPageBtn').addEventListener('click',()=>{page=Math.max(0,page-1);buildLevelGrid()});
 $('nextPageBtn').addEventListener('click',()=>{page=Math.min(PAGES-1,page+1);buildLevelGrid()});
 $('backHomeBtn').addEventListener('click',()=>{$('levelSelect').style.display='none';$('titleScreen').style.display='block'});
-$('soundBtn').addEventListener('click',()=>{ac();mute=!mute;try{localStorage.setItem('wood-mute',mute?'1':'0')}catch(e){}
-  $('soundBtn').style.opacity=mute?'.55':'1';if(!mute)tock()});
 function startLevel(i){
   cur=i;page=Math.floor(i/PAGE_SIZE);$('levelSelect').style.display='none';$('gameScreen').style.display='flex';
   skin=String(LEVELS[i].k)[0]==='e'?'coal':GEMS[Math.floor(Math.random()*GEMS.length)];
@@ -239,6 +237,5 @@ $('retryBtn').addEventListener('click',afterClear(resetGame));
 $('nextBtn').addEventListener('click',afterClear(()=>startLevel(Math.min(cur+1,LEVELS.length-1))));
 $('toListBtn').addEventListener('click',afterClear(backToList));
 $('titleScreen').addEventListener('click',()=>{ac();$('titleScreen').style.display='none';$('levelSelect').style.display='flex';if(window.showBannerAd)showBannerAd()});
-$('soundBtn').style.opacity=mute?'.55':'1';
 buildLevelGrid();
 if(window.initAds)initAds();

@@ -147,3 +147,21 @@ button.ghost{background:transparent;color:#fff8ea;box-shadow:none;text-decoratio
 .piece[data-k=t][data-skin=pink]{background-image:url(img/gem_pink.jpg)}
 .piece[data-k=t][data-skin=coal]{background-image:url(img/gem_coal.jpg)}
 .piece[data-k=t]::after{display:none}
+
+/* ---- 歯車メニュー ---- */
+#settings{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:70;background:rgba(12,7,3,.62);padding:16px;box-sizing:border-box}
+.sCard{width:min(420px,100%);max-height:min(640px,100%);display:flex;flex-direction:column;border-radius:14px;overflow:hidden;color:#f6e8cc;
+ font-family:"Hiragino Mincho ProN","Yu Mincho",Georgia,serif;background:var(--grain),linear-gradient(170deg,#4a3320,#2c1d11);
+ box-shadow:0 0 0 1px #b88a52,0 0 0 4px #3a2616,0 18px 40px rgba(0,0,0,.55)}
+.sHead{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;letter-spacing:.14em;border-bottom:1px solid rgba(214,172,112,.5)}
+.sBody{padding:8px 14px 14px;overflow:auto;-webkit-overflow-scrolling:touch}
+.sRow{display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;padding:.95em .4em;border:0;border-bottom:1px solid rgba(214,172,112,.25);
+ background:none;color:inherit;font:inherit;font-size:1rem;text-align:left;text-decoration:none;cursor:pointer}
+.sRow .sR{opacity:.75}.sRow.danger{color:#ffb4a0;justify-content:center}
+.sw{display:inline-block;width:2.5em;height:1.4em;border-radius:1em;background:#6b5a48;position:relative;transition:.15s}
+.sw::after{content:"";position:absolute;top:.15em;left:.15em;width:1.1em;height:1.1em;border-radius:50%;background:#f6e8cc;transition:.15s}
+.sw.on{background:#c9953f}.sw.on::after{left:1.25em}
+.sFoot{margin-top:14px;text-align:center;font-size:.78rem;line-height:1.7;opacity:.75}
+.sBack{border:0;background:none;color:#f2d9a8;font:inherit;padding:.4em 0 .6em;cursor:pointer}
+.sText{line-height:1.85;font-size:.95rem;padding:.2em .2em 1em}.sText p{margin:.4em 0}
+.sDoc{width:100%;height:min(460px,64vh);border:0;border-radius:8px;background:#fbf6ec}
