@@ -177,3 +177,19 @@ button.ghost{background:transparent;color:#fff8ea;box-shadow:none;text-decoratio
 .nNew{margin-left:.7em;padding:.05em .5em;border-radius:1em;background:#d0452f;color:#fff;font-size:.68rem;letter-spacing:.05em}
 .nTitle{font-size:1.02rem;margin:.3em 0 .2em}.nBody{font-size:.9rem;line-height:1.75;white-space:pre-wrap;opacity:.92}
 .nLink{display:inline-block;margin-top:.5em;color:#f2d9a8;font-size:.9rem}
+
+/* ---- タイムアタック ---- */
+.ovl{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:72;background:rgba(12,7,3,.62);padding:16px;box-sizing:border-box}
+#taCount{z-index:75;background:rgba(12,7,3,.55)}
+.taNum{font-family:Georgia,"Hiragino Mincho ProN",serif;font-size:6.5rem;color:#fff8ea;text-shadow:0 4px 18px rgba(0,0,0,.7)}.taNum.go{color:#ffe08a;letter-spacing:.1em}
+.taStats{display:none}
+#gameScreen.ta .hudStats:not(.taStats){display:none}#gameScreen.ta .taStats{display:flex}
+#gameScreen.ta #hintBtn{display:none}#taSkip{display:none}#gameScreen.ta #taSkip{display:flex}
+.hintRow #taSkip{flex:0 0 46%}
+.taStats b.low{color:#ff8a70}
+#taFlash{position:fixed;left:50%;top:36%;transform:translate(-50%,-50%);z-index:74;pointer-events:none;opacity:0;transition:opacity .15s;
+ font:600 2.3rem/1 Georgia,"Hiragino Mincho ProN",serif;letter-spacing:.16em;color:#ffe9a8;text-shadow:0 3px 14px rgba(0,0,0,.75)}
+#taFlash.show{opacity:1}
+.taEntry{flex:none;margin:12px auto 0;padding:.7em 1.5em;font-size:.95rem}
+.taRes{text-align:center}.taBig{padding:.6em 0 .2em}.taBig b{font-size:4rem;font-weight:500;letter-spacing:.04em}.taBig span{margin-left:.4em}
+.taSub{font-size:.85rem;opacity:.85;margin-bottom:.8em;color:#ffe9a8}

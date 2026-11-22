@@ -4,9 +4,10 @@
 });
 /* 木箱すべりパズル：ゲーム本体。レベルは levels.js、見た目は style.css */
 const COLS=4,ROWS=5,PAGE_SIZE=9;
-const LEVELS=LEVEL_DATA.map(d=>({k:d.k,ref:d.ref,exit:{side:d.exit[0],pos:+d.exit[1]},
+const LEVELS=LEVEL_DATA.map(d=>({k:d.k,ref:d.ref,ta:d.ta,exit:{side:d.exit[0],pos:+d.exit[1]},
   pieces:d.p.map((a,i)=>({id:i?'p'+i:'target',x:a[0],y:a[1],w:a[2],h:a[3]}))}));
-const PAGES=Math.ceil(LEVELS.length/PAGE_SIZE);
+const NLV=LEVELS.filter(l=>!l.ta).length; /* 通常レベルの数（タイムアタック専用は除く） */
+const PAGES=Math.ceil(NLV/PAGE_SIZE);
 const $=id=>document.getElementById(id), board=$('board');
 let CELL=70,page=0,cur=0,pieces=[],moves=0,history=[],els={},drag=null,busy=false,mute=false;
 try{mute=localStorage.getItem('wood-mute')==='1'}catch(e){}
@@ -63,7 +64,7 @@ const starLimits=ref=>[ref+Math.max(1,Math.floor(ref*0.1)),Math.ceil(ref*1.5)];
 function starCount(best,ref){if(best==null)return 0;const[s3,s2]=starLimits(ref);return best<=s3?3:best<=s2?2:1}
 function buildLevelGrid(){
   const g=$('lvGrid');g.innerHTML='';
-  const start=page*PAGE_SIZE,end=Math.min(LEVELS.length,start+PAGE_SIZE);
+  const start=page*PAGE_SIZE,end=Math.min(NLV,start+PAGE_SIZE);
   for(let i=start;i<end;i++){
     const n=starCount(getBest(i),LEVELS[i].ref),c=document.createElement('div');c.className='lvCard';
     c.innerHTML=`<div class="lvnum">${String(i+1).padStart(2,'0')}</div><div class="lvstars">${[0,1,2].map(j=>`<span class="${j<n?'on':''}">★</span>`).join('')}</div>`;
@@ -78,8 +79,9 @@ $('nextPageBtn').addEventListener('click',()=>{page=Math.min(PAGES-1,page+1);bui
 $('backHomeBtn').addEventListener('click',()=>{$('levelSelect').style.display='none';$('titleScreen').style.display='block'});
 function startLevel(i){
   cur=i;page=Math.floor(i/PAGE_SIZE);$('levelSelect').style.display='none';$('gameScreen').style.display='flex';
-  skin=String(LEVELS[i].k)[0]==='e'?'coal':GEMS[Math.floor(Math.random()*GEMS.length)];
-  $('lvTitle').textContent='LEVEL '+pad2(i+1);$('stageNo').textContent='STAGE '+pad2(i+1)+' / '+pad2(LEVELS.length);resetGame();
+  skin=/^[et]/.test(String(LEVELS[i].k))?'coal':GEMS[Math.floor(Math.random()*GEMS.length)];
+  $('lvTitle').textContent='LEVEL '+pad2(i+1);$('stageNo').textContent='STAGE '+pad2(i+1)+' / '+pad2(NLV);resetGame();
+  if(window.TA&&TA.active)TA.decorate();
   if(window.showBannerAd)showBannerAd();
 }
 function backToList(){$('gameScreen').style.display='none';$('levelSelect').style.display='flex';buildLevelGrid();if(window.showBannerAd)showBannerAd()}
@@ -200,11 +202,12 @@ function checkWin(){
     if(ex.side==='D')t.y=ROWS;else if(ex.side==='U')t.y=-t.h;else if(ex.side==='R')t.x=COLS;else t.x=-t.w;
     render();chime();
     setTimeout(()=>{
+      if(window.TA&&TA.active){TA.cleared();return}  /* タイムアタック中は記録・クリア画面を出さずに次へ */
       const prev=getBest(cur);setBest(cur,moves);
       $('statMoves').textContent=moves;$('statBest').textContent=getBest(cur);
       const ref=LEVELS[cur].ref;$('statPar').textContent='最小 '+ref+'手 ／ ★3は '+starLimits(ref)[0]+'手以内';
       $('newBestTag').style.display=(prev===null||moves<prev)?'inline-block':'none';
-      $('nextBtn').style.display=cur<LEVELS.length-1?'inline-block':'none';
+      $('nextBtn').style.display=cur<NLV-1?'inline-block':'none';
       spawnConfetti();$('win').style.display='flex';showWinStars(starCount(moves,ref));
     },300)},120);
 }
@@ -228,13 +231,13 @@ window.addEventListener('resize',()=>{clearTimeout(resizeT);resizeT=setTimeout((
 
 /* ---- ボタン ---- */
 $('undoBtn').addEventListener('click',()=>{if(busy||!history.length)return;clearHint();pieces=history.pop();moves=Math.max(0,moves-1);render();
-  if(window.maybeShowInterstitialOnUndo)maybeShowInterstitialOnUndo()});
+  if(window.maybeShowInterstitialOnUndo&&!(window.TA&&TA.active))maybeShowInterstitialOnUndo()});
 $('resetBtn').addEventListener('click',resetGame);
 $('backBtn').addEventListener('click',backToList);
-$('homeBtn').addEventListener('click',()=>{clearHint();$('win').style.display='none';backToList()});
+$('homeBtn').addEventListener('click',()=>{if(window.TA&&TA.active){TA.quit();return}clearHint();$('win').style.display='none';backToList()});
 const afterClear=fn=>()=>{if(window.showInterstitialOnClear)showInterstitialOnClear();$('win').style.display='none';fn()};
 $('retryBtn').addEventListener('click',afterClear(resetGame));
-$('nextBtn').addEventListener('click',afterClear(()=>startLevel(Math.min(cur+1,LEVELS.length-1))));
+$('nextBtn').addEventListener('click',afterClear(()=>startLevel(Math.min(cur+1,NLV-1))));
 $('toListBtn').addEventListener('click',afterClear(backToList));
 $('titleScreen').addEventListener('click',()=>{ac();$('titleScreen').style.display='none';$('levelSelect').style.display='flex';if(window.showBannerAd)showBannerAd()});
 buildLevelGrid();

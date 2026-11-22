@@ -23,9 +23,9 @@ function doc(t,url){
   title.textContent=t;body.innerHTML=back()+'<iframe class="sDoc" title="'+t+'"></iframe>';$('sBack').onclick=main;
   const f=body.querySelector('iframe'),d=window.__DOCS;if(d&&d[url])f.srcdoc=d[url];else f.src=url;
 }
-function reset(){sub('データを消去','<div class="sText"><p>ベスト手数と★の記録がすべて消えます。この操作は元に戻せません。</p></div><button class="sRow danger" id="sDo"><span>消去する</span></button><button class="sRow" id="sNo"><span>やめる</span></button>');
+function reset(){sub('データを消去','<div class="sText"><p>ベスト手数・★・タイムアタックの記録がすべて消えます。この操作は元に戻せません。</p></div><button class="sRow danger" id="sDo"><span>消去する</span></button><button class="sRow" id="sNo"><span>やめる</span></button>');
   $('sNo').onclick=main;
-  $('sDo').onclick=()=>{try{Object.keys(localStorage).filter(k=>k.indexOf('wood-puzzle-best')===0).forEach(k=>localStorage.removeItem(k))}catch(e){}
+  $('sDo').onclick=()=>{try{Object.keys(localStorage).filter(k=>k.indexOf('wood-puzzle-best')===0||k.indexOf('wood-ta-')===0).forEach(k=>localStorage.removeItem(k))}catch(e){}
     if(typeof buildLevelGrid==='function')buildLevelGrid();sub('データを消去','<div class="sText"><p>記録を消去しました。</p></div>')};}
 const open=()=>{main();root.style.display='flex'},close=()=>{root.style.display='none'};
 $('soundBtn').addEventListener('click',open);$('sClose').onclick=close;
