@@ -4,6 +4,8 @@
 });
 /* 木箱すべりパズル：ゲーム本体。レベルは levels.js、見た目は style.css */
 const COLS=4,ROWS=5,PAGE_SIZE=9;
+const HINT_PACK=5; /* 広告1回で見られるヒントの手数 */
+let hintLeft=0;    /* 見られるヒントの残り回数（0なら、次はまた広告） */
 const CTL_LIFT=28; /* style.css の #gameScreen の padding-bottom と同じ数字（ボタンを広告から離す余白） */
 const LEVELS=LEVEL_DATA.map(d=>({k:d.k,ref:d.ref,ta:d.ta,exit:{side:d.exit[0],pos:+d.exit[1]},
   pieces:d.p.map((a,i)=>({id:i?'p'+i:'target',x:a[0],y:a[1],w:a[2],h:a[3]}))}));
@@ -173,26 +175,34 @@ function onMove(e){
 function onUp(){
   if(!drag)return;const d=drag;drag=null;d.el.classList.remove('drag');
   const p=pieces.find(x=>x.id===d.id),n=d.axis?Math.round(d.off/CELL):0;
-  if(!n){place(d.el,p);return}
+  if(!n){place(d.el,p);if(hintLeft>0)showHint();return}
   history.push(clone(pieces));
   if(d.axis==='x')p.x+=n;else p.y+=n;
   moves++;place(d.el,p);$('moves').textContent=pad2(moves);tock();checkWin();
+  if(hintLeft>0){hintLeft--;if(hintLeft>0&&!busy)setTimeout(showHint,80)} /* 動かしたら、次のヒントを出す */
 }
 
-/* ---- ヒント：いまの盤面から最短で解く手順の「最初の一手」を光らせる ---- */
+/* ---- ヒント：動画広告を見ると、次の HINT_PACK 手ぶん、最短手順の「次の一手」を光らせる ----
+   hintLeft が残っているあいだは、木箱を動かすたびに次の一手が自動で出る。0になったらまた広告 */
 function clearHint(){document.querySelectorAll('.piece.hint').forEach(e=>{e.classList.remove('hint');e.removeAttribute('data-hint')});$('hintMsg').textContent=''}
 function showHint(){
   if(busy||drag)return;clearHint();
+  if(hintLeft<=0)return;
   const sol=window.solvePuzzle&&solvePuzzle(pieces,curExit());
   if(!sol||!sol.length){$('hintMsg').textContent='この盤面のヒントは出せませんでした';return}
   const m=sol[0],p=pieces[m.i],n=Math.abs(m.dx||m.dy);
   const arrow=m.dx>0?'→':m.dx<0?'←':m.dy>0?'↓':'↑',name=m.dx>0?'右':m.dx<0?'左':m.dy>0?'下':'上';
   els[p.id].classList.add('hint');els[p.id].dataset.hint=arrow;
-  $('hintMsg').textContent='光っている木箱を'+name+'へ'+n+'マス（クリアまで あと'+sol.length+'手）';
+  $('hintMsg').textContent='光っている木箱を'+name+'へ'+n+'マス（'+(hintLeft===1?'最後のヒント':'ヒント残り'+hintLeft+'回')+'／あと'+sol.length+'手）';
 }
-/* 広告を後から付けるときは、ads.js に showRewardedForHint(callback) を作れば、
-   「動画を見たらヒント」になる（広告を見終わったら callback() を呼ぶ）。無ければそのまま表示する */
-$('hintBtn').addEventListener('click',()=>{if(window.showRewardedForHint)showRewardedForHint(showHint);else showHint()});
+function grantHints(){hintLeft=HINT_PACK;showHint()}
+/* ヒントが残っているときは、もう一度光らせるだけ（広告なし）。0のときは、広告を見たあとに grantHints()。
+   ads.js の showRewardedForHint が無い環境（ブラウザ等）では、そのままヒントを出す */
+$('hintBtn').addEventListener('click',()=>{
+  if(busy||drag)return;
+  if(hintLeft>0){showHint();return}
+  if(window.showRewardedForHint)showRewardedForHint(grantHints,HINT_PACK);else grantHints();
+});
 
 /* ---- クリア ---- */
 function checkWin(){
@@ -225,13 +235,13 @@ function spawnConfetti(){
     card.appendChild(s);setTimeout(()=>s.remove(),2200);
   }
 }
-function resetGame(){sizeBoard();pieces=clone(LEVELS[cur].pieces);moves=0;history=[];busy=false;$('parN').textContent=pad2(LEVELS[cur].ref);build();render();clearHint()}
+function resetGame(){hintLeft=0;sizeBoard();pieces=clone(LEVELS[cur].pieces);moves=0;history=[];busy=false;$('parN').textContent=pad2(LEVELS[cur].ref);build();render();clearHint()}
 let resizeT;
 window.addEventListener('resize',()=>{clearTimeout(resizeT);resizeT=setTimeout(()=>{
   if($('gameScreen').style.display==='flex'&&pieces.length){sizeBoard();build();render()}},150)});
 
 /* ---- ボタン ---- */
-$('undoBtn').addEventListener('click',()=>{if(busy||!history.length)return;clearHint();pieces=history.pop();moves=Math.max(0,moves-1);render();
+$('undoBtn').addEventListener('click',()=>{if(busy||!history.length)return;clearHint();pieces=history.pop();moves=Math.max(0,moves-1);render();if(hintLeft>0)setTimeout(showHint,0);
   if(window.maybeShowInterstitialOnUndo&&!(window.TA&&TA.active))maybeShowInterstitialOnUndo()});
 $('resetBtn').addEventListener('click',resetGame);
 $('backBtn').addEventListener('click',backToList);
