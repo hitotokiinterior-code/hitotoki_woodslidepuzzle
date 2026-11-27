@@ -4,6 +4,7 @@
 });
 /* 木箱すべりパズル：ゲーム本体。レベルは levels.js、見た目は style.css */
 const COLS=4,ROWS=5,PAGE_SIZE=9;
+const CTL_LIFT=28; /* style.css の #gameScreen の padding-bottom と同じ数字（ボタンを広告から離す余白） */
 const LEVELS=LEVEL_DATA.map(d=>({k:d.k,ref:d.ref,ta:d.ta,exit:{side:d.exit[0],pos:+d.exit[1]},
   pieces:d.p.map((a,i)=>({id:i?'p'+i:'target',x:a[0],y:a[1],w:a[2],h:a[3]}))}));
 const NLV=LEVELS.filter(l=>!l.ta).length; /* 通常レベルの数（タイムアタック専用は除く） */
@@ -17,7 +18,7 @@ const pad2=n=>String(n).padStart(2,'0');
 function sizeBoard(){
   /* 横幅いっぱい／縦に収まる大きさ（PCなど広い画面では高さに合わせてぐっと大きく） */
   const ad=parseFloat(getComputedStyle(document.body).getPropertyValue('--ad-h'))||0;
-  CELL=Math.floor(Math.max(58,Math.min(150,(Math.min(window.innerWidth,900)-44)/COLS,(window.innerHeight-ad-385)/ROWS)));
+  CELL=Math.floor(Math.max(58,Math.min(150,(Math.min(window.innerWidth,900)-44)/COLS,(window.innerHeight-ad-385-CTL_LIFT)/ROWS)));
   $('gameScreen').style.setProperty('--bw',(CELL*COLS)+'px');
   board.style.width=(CELL*COLS)+'px';board.style.height=(CELL*ROWS)+'px';
 }
