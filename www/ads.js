@@ -22,6 +22,11 @@
   var BANNER_AD_ID = "ca-app-pub-4044413836429156/8030070153";
   var INTERSTITIAL_AD_ID = "ca-app-pub-4044413836429156/5615484797";
 
+  // リワード広告（ヒント用）のID。いまはGoogle公式のテストID。
+  // ★ リリース前に、AdMobで「リワード」の広告ユニットを作り、そのIDに差し替えること。
+  var TEST_REWARDED_ID = "ca-app-pub-3940256099942544/1712485313";
+  var REWARDED_AD_ID = TEST_REWARDED_ID;
+
   // 全画面広告の頻度
   var INTERSTITIAL_EVERY_N_CLEARS = 3;   // クリア3回に1回
   var INTERSTITIAL_MIN_INTERVAL_MS = 90 * 1000; // 前回表示から最低90秒
@@ -87,6 +92,7 @@
       } catch (e) {}
 
       preloadInterstitial();
+      preloadRewarded();
       return true;
     })();
     return readyPromise;
@@ -147,6 +153,110 @@
     }
   }
 
+  // ---- リワード広告（ヒント）：見終わったら報酬。途中で閉じたら報酬なし ----
+  var rewardedReady = false;
+  var rewardedLoading = false;
+
+  async function preloadRewarded() {
+    var AdMob = getAdMob();
+    if (!AdMob || rewardedLoading) return;
+    rewardedLoading = true;
+    try {
+      await AdMob.prepareRewardVideoAd({ adId: REWARDED_AD_ID });
+      rewardedReady = true;
+    } catch (e) {
+      rewardedReady = false;
+      console.warn("[ads] prepareRewardVideoAd failed", e);
+    } finally {
+      rewardedLoading = false;
+    }
+  }
+
+  // 広告を見せて、報酬（最後まで視聴）が付いたら true で解決する
+  function playRewarded() {
+    var AdMob = getAdMob();
+    return new Promise(function (resolve) {
+      var earned = false;
+      var handles = [];
+      function done() {
+        handles.forEach(function (h) { try { h.remove(); } catch (e) {} });
+        handles = [];
+        resolve(earned);
+      }
+      rewardedReady = false;
+      Promise.all([
+        AdMob.addListener("onRewardedVideoAdReward", function () { earned = true; }),
+        AdMob.addListener("onRewardedVideoAdDismissed", done),
+        AdMob.addListener("onRewardedVideoAdFailedToShow", done),
+      ])
+        .then(function (hs) {
+          handles = hs;
+          return AdMob.showRewardVideoAd();
+        })
+        .catch(function (e) {
+          console.warn("[ads] showRewardVideoAd failed", e);
+          done();
+        });
+    }).then(function (ok) {
+      lastInterstitialAt = Date.now(); // 直後に全画面広告が重ならないようにする
+      preloadRewarded();               // 次の広告を先読み
+      return ok;
+    });
+  }
+
+  // 「広告を見る／やめる」の確認ダイアログ（見るかどうかは必ずユーザーが選ぶ）
+  var hintDlg = null;
+  var hintBusy = false;
+  function buildHintDlg() {
+    hintDlg = document.createElement("div");
+    hintDlg.className = "ovl"; // style.css の既存オーバーレイ
+    hintDlg.innerHTML =
+      '<div class="sCard"><div class="sHead"><span>HINT</span></div><div class="sBody">' +
+      '<div class="sText"><p id="hadMsg"></p></div>' +
+      '<button class="sRow" id="hadGo"><span>広告を見る</span><span class="sR">›</span></button>' +
+      '<button class="sRow" id="hadNo"><span>やめる</span></button></div></div>';
+    document.body.appendChild(hintDlg);
+    hintDlg.addEventListener("click", function (e) {
+      if (e.target === hintDlg && !hintBusy) hintDlg.style.display = "none";
+    });
+    hintDlg.querySelector("#hadNo").onclick = function () {
+      if (!hintBusy) hintDlg.style.display = "none";
+    };
+  }
+
+  // game.js の「ヒント」ボタンから呼ばれる。報酬が付いたら onGranted() を呼ぶ。
+  // ブラウザなど広告が無い環境では、確認なしでそのまま onGranted() する。
+  function showRewardedForHint(onGranted, n) {
+    if (!getAdMob()) { onGranted(); return; }
+    if (!hintDlg) buildHintDlg();
+    var msg = hintDlg.querySelector("#hadMsg");
+    var go = hintDlg.querySelector("#hadGo");
+    msg.textContent = "動画広告を最後まで見ると、次の" + (n || 5) + "手ぶんのヒントが出ます。";
+    hintDlg.style.display = "flex";
+    go.onclick = async function () {
+      if (hintBusy) return;
+      hintBusy = true;
+      try {
+        var ok = await initAds();
+        if (ok && !rewardedReady) await preloadRewarded();
+        if (!ok || !rewardedReady) {
+          msg.textContent = "広告の準備ができていません。通信を確認して、しばらくしてからもう一度お試しください。";
+          preloadRewarded();
+          return;
+        }
+        var earned = await playRewarded();
+        if (earned) {
+          hintDlg.style.display = "none";
+          onGranted();
+        } else {
+          msg.textContent = "広告を最後まで見ると、ヒントが出ます。";
+        }
+      } finally {
+        hintBusy = false;
+      }
+    };
+  }
+
   // クリア画面を閉じるタイミングで呼ばれる。
   // クリア3回に1回、かつ前回の全画面広告から90秒以上たっているときだけ表示。
   function showInterstitialOnClear() {
@@ -171,4 +281,5 @@
   window.hideBannerAd = hideBannerAd;
   window.showInterstitialOnClear = showInterstitialOnClear;
   window.maybeShowInterstitialOnUndo = maybeShowInterstitialOnUndo;
+  window.showRewardedForHint = showRewardedForHint;
 })();
